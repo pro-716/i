@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RESPAWN | مركز القيادة</title>
+    <title>RESPAWN | نظام الإدارة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -26,122 +26,101 @@
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #0B0B0F; color: #fff; overflow: hidden; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .sidebar-link.active { background: linear-gradient(90deg, #6D28D9, #A855F7); color: white; box-shadow: 0 4px 15px rgba(109, 40, 217, 0.4); }
-        .table-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .table-card:hover { transform: translateY(-5px); border-color: #A855F7; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2); }
+        .sidebar-link.active { background: linear-gradient(90deg, #6D28D9, #A855F7); color: white; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .custom-gradient { background: linear-gradient(135deg, #6D28D9 0%, #A855F7 100%); }
+        .menu-drawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
 
-    <!-- Sidebar -->
-    <aside class="w-72 h-full glass border-l border-white/10 flex flex-col p-6 z-50">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-black tracking-tighter font-orbitron text-white">RESPAWN<span class="text-neonViolet">.</span></h1>
-            <p class="text-xs text-gray-400 font-orbitron uppercase tracking-widest">Cashier Control</p>
+    <!-- Hamburger Menu Drawer -->
+    <div id="drawer" class="fixed top-0 right-0 w-80 h-full glass z-[100] menu-drawer translate-x-full border-l border-white/10 p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-2xl font-black font-orbitron">القائمة</h2>
+            <button onclick="toggleDrawer()" class="text-2xl hover:text-neonViolet transition-all">✕</button>
         </div>
-        
-        <nav class="flex flex-col gap-3 flex-1">
-            <button onclick="switchView('dashboard')" id="btn-dashboard" class="sidebar-link active flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
+        <nav class="flex flex-col gap-4">
+            <button onclick="switchView('dashboard')" class="sidebar-link flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                 لوحة التحكم
             </button>
-            <button onclick="switchView('tables')" id="btn-tables" class="sidebar-link flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
+            <button onclick="switchView('tables')" class="sidebar-link flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 إدارة الطاولات
             </button>
-            <button onclick="switchView('menu')" id="btn-menu" class="sidebar-link flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
+            <button onclick="switchView('menu')" class="sidebar-link flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                 إدارة المنيو
             </button>
-            <button onclick="switchView('invoices')" id="btn-invoices" class="sidebar-link flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
+            <button onclick="switchView('invoices')" class="sidebar-link flex items-center gap-4 p-4 rounded-2xl transition-all font-bold text-gray-400 hover:text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                الفواتير والتقارير
+                الفواتير
             </button>
+            <div class="h-px bg-white/10 my-4"></div>
+            <button onclick="resetSystem()" class="p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold">تصفير النظام ⚠️</button>
         </nav>
+    </div>
 
-        <div class="mt-auto pt-6 border-t border-white/10">
-            <button onclick="resetSystem()" class="w-full p-4 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold flex items-center justify-center gap-2">
-                تصفير النظام ⚠️
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="flex-1 h-full overflow-y-auto no-scrollbar p-8 relative">
         
-        <!-- Top Stats Bar -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate__animated animate__fadeInDown">
-            <div class="glass p-6 rounded-3xl flex items-center gap-6">
-                <div class="w-14 h-14 rounded-2xl custom-gradient flex items-center justify-center text-2xl">💰</div>
-                <div>
-                    <p class="text-gray-400 text-xs font-bold uppercase">إيراد اليوم</p>
-                    <h3 id="day-rev" class="text-2xl font-black font-orbitron">0 IQD</h3>
-                </div>
-            </div>
-            <div class="glass p-6 rounded-3xl flex items-center gap-6">
-                <div class="w-14 h-14 rounded-2xl bg-accentCyan flex items-center justify-center text-2xl">📅</div>
-                <div>
-                    <p class="text-gray-400 text-xs font-bold uppercase">إيراد الشهر</p>
-                    <h3 id="month-rev" class="text-2xl font-black font-orbitron">0 IQD</h3>
-                </div>
-            </div>
-            <div class="glass p-6 rounded-3xl flex items-center gap-6">
-                <div class="w-14 h-14 rounded-2xl bg-neonViolet flex items-center justify-center text-2xl">🔥</div>
-                <div>
-                    <p class="text-gray-400 text-xs font-bold uppercase">طاولات نشطة</p>
-                    <h3 id="active-tables-count" class="text-2xl font-black font-orbitron">0</h3>
-                </div>
-            </div>
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-10 animate__animated animate__fadeInDown">
+            <button onclick="toggleDrawer()" class="p-4 glass rounded-2xl text-white hover:bg-neonViolet transition-all">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <h1 class="text-4xl font-black font-orbitron">RESPAWN <span class="text-neonViolet">CASHIER</span></h1>
+            <div class="w-12 h-12 rounded-full glass flex items-center justify-center text-xl">👤</div>
         </div>
 
-        <!-- View: Dashboard -->
+        <!-- Dashboard View -->
         <div id="view-dashboard" class="view animate__animated animate__fadeIn">
-            <h2 class="text-3xl font-black mb-6">نظرة عامة على <span class="text-neonViolet">النظام</span></h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="glass p-8 rounded-[3rem] flex items-center gap-6 border-b-4 border-neonViolet">
+                    <div class="text-4xl">💰</div>
+                    <div><p class="text-gray-400 text-xs font-bold uppercase">إيراد اليوم</p><h3 id="day-rev" class="text-3xl font-black font-orbitron">0 IQD</h3></div>
+                </div>
+                <div class="glass p-8 rounded-[3rem] flex items-center gap-6 border-b-4 border-accentCyan">
+                    <div class="text-4xl">📅</div>
+                    <div><p class="text-gray-400 text-xs font-bold uppercase">إيراد الشهر</p><h3 id="month-rev" class="text-3xl font-black font-orbitron">0 IQD</h3></div>
+                </div>
+                <div class="glass p-8 rounded-[3rem] flex items-center gap-6 border-b-4 border-red-500">
+                    <div class="text-4xl">🔥</div>
+                    <div><p class="text-gray-400 text-xs font-bold uppercase">طاولات نشطة</p><h3 id="active-tables-count" class="text-3xl font-black font-orbitron">0</h3></div>
+                </div>
+            </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="glass p-8 rounded-[3rem]">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">🚀 المنتجات الأكثر طلباً</h3>
-                    <div id="top-products" class="space-y-4"></div>
-                </div>
-                <div class="glass p-8 rounded-[3rem]">
-                    <h3 class="text-xl font-bold mb-6 flex items-center gap-2">🕒 تنبيهات الوقت</h3>
-                    <div id="time-alerts" class="space-y-4"></div>
-                </div>
+                <div class="glass p-8 rounded-[3rem]"><h3 class="text-xl font-bold mb-6">🚀 الأكثر طلباً</h3><div id="top-products" class="space-y-4"></div></div>
+                <div class="glass p-8 rounded-[3rem]"><h3 class="text-xl font-bold mb-6">🕒 تنبيهات الوقت</h3><div id="time-alerts" class="space-y-4"></div></div>
             </div>
         </div>
 
-        <!-- View: Tables -->
+        <!-- Tables View -->
         <div id="view-tables" class="view hidden animate__animated animate__fadeIn">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-3xl font-black">إدارة <span class="text-neonViolet">الطاولات</span></h2>
-                <button onclick="openAddTableModal()" class="px-6 py-3 rounded-2xl custom-gradient font-bold hover:scale-105 transition-all shadow-lg shadow-purple-500/30">إضافة طاولة +</button>
+                <button onclick="openAddTableModal()" class="px-6 py-3 rounded-2xl custom-gradient font-bold">إضافة طاولة +</button>
             </div>
             <div id="tables-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         </div>
 
-        <!-- View: Menu -->
+        <!-- Menu View -->
         <div id="view-menu" class="view hidden animate__animated animate__fadeIn">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-3xl font-black">إدارة <span class="text-neonViolet">المنيو</span></h2>
-                <button onclick="openAddCategoryModal()" class="px-6 py-3 rounded-2xl custom-gradient font-bold hover:scale-105 transition-all">إضافة قسم +</button>
+                <button onclick="openAddCategoryModal()" class="px-6 py-3 rounded-2xl custom-gradient font-bold">إضافة قسم +</button>
             </div>
             <div id="categories-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </div>
 
-        <!-- View: Invoices -->
+        <!-- Invoices View -->
         <div id="view-invoices" class="view hidden animate__animated animate__fadeIn">
             <h2 class="text-3xl font-black mb-8">سجل <span class="text-neonViolet">الفواتير</span></h2>
             <div class="glass rounded-[3rem] overflow-hidden">
                 <table class="w-full text-right">
-                    <thead class="bg-white/5 text-gray-400 uppercase text-xs font-bold">
-                        <tr>
-                            <th class="p-6">رقم الفاتورة</th>
-                            <th class="p-6">الطاولة</th>
-                            <th class="p-6">المجموع</th>
-                            <th class="p-6">التاريخ</th>
-                            <th class="p-6">الإجراء</th>
-                        </tr>
+                    <thead class="bg-white/5 text-gray-400 text-xs font-bold">
+                        <tr><th class="p-6">رقم الفاتورة</th><th class="p-6">الطاولة</th><th class="p-6">المجموع</th><th class="p-6">التاريخ</th></tr>
                     </thead>
                     <tbody id="invoices-list" class="divide-y divide-white/5"></tbody>
                 </table>
@@ -150,7 +129,7 @@
 
     </main>
 
-    <!-- Global Modal -->
+    <!-- MODALS -->
     <div id="modal-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
         <div id="modal-content" class="glass w-full max-w-2xl p-10 rounded-[3rem] animate__animated animate__zoomIn relative">
             <button onclick="closeModal()" class="absolute top-6 left-6 text-gray-400 hover:text-white text-2xl">✕</button>
@@ -170,31 +149,31 @@
             messagingSenderId: "503079760523",
             appId: "1:503079760523:web:002bb6364abd211f5a9a8e"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         let allProducts = [];
         let allCategories = [];
 
+        window.toggleDrawer = () => {
+            document.getElementById('drawer').classList.toggle('translate-x-full');
+        }
+
         window.switchView = (view) => {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById(`view-${view}`).classList.remove('hidden');
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(`btn-${view}`).classList.add('active');
-        };
+            toggleDrawer();
+        }
 
-        // --- Tables Management ---
+        // --- Tables Engine ---
         onSnapshot(query(collection(db, "tables"), where("status", "==", "open")), (snap) => {
             const grid = document.getElementById('tables-grid');
             grid.innerHTML = '';
             document.getElementById('active-tables-count').innerText = snap.size;
-            
             snap.forEach(docSnap => {
                 const table = docSnap.data();
-                const id = docSnap.id;
                 grid.innerHTML += `
-                    <div class="table-card glass p-6 rounded-3xl border-r-4 border-neonViolet" onclick="manageTable('${id}')">
+                    <div class="table-card glass p-6 rounded-3xl border-r-4 border-neonViolet cursor-pointer" onclick="manageTable('${docSnap.id}')">
                         <div class="flex justify-between items-start mb-4">
                             <h4 class="text-xl font-black font-orbitron">${table.name}</h4>
                             <span class="text-[10px] px-2 py-1 rounded-lg bg-neonViolet text-white font-bold">مشغول</span>
@@ -209,20 +188,16 @@
         });
 
         window.manageTable = async (id) => {
-            const snap = await getDocs(doc(db, "tables", id));
-            // Simplification for demo, usually you'd get the doc directly
-            const tableRef = doc(db, "tables", id);
             const tableSnap = await getDocs(query(collection(db, "tables"), where("__name__", "==", id)));
             const table = tableSnap.docs[0].data();
-            
             const body = document.getElementById('modal-body');
             body.innerHTML = `
                 <h2 class="text-3xl font-black mb-6 text-center">إدارة ${table.name}</h2>
                 <div class="flex gap-4 mb-8">
-                    <button onclick="openProductPicker('${id}')" class="flex-1 p-4 rounded-2xl custom-gradient font-bold">إضافة منتج +</button>
+                    <button onclick="openProductPicker('${id}')" class="flex-1 p-4 rounded-2xl custom-gradient font-bold">إضافة صنف +</button>
                     <button onclick="transferTable('${id}')" class="flex-1 p-4 rounded-2xl glass font-bold hover:bg-white/10 transition-all">نقل الحساب ⇄</button>
                 </div>
-                <div class="space-y-4 max-h-60 overflow-y-auto no-scrollbar mb-8" id="table-items-list">
+                <div class="space-y-4 max-h-60 overflow-y-auto no-scrollbar mb-8">
                     ${table.items ? table.items.map((item, idx) => `
                         <div class="flex justify-between items-center p-4 glass rounded-2xl">
                             <div><span class="font-bold">${item.name}</span> <span class="text-xs text-gray-400 mr-2">${item.price} IQD</span></div>
@@ -231,21 +206,21 @@
                                 <button onclick="updateItemQty('${id}', ${idx}, -1)" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20">-</button>
                             </div>
                         </div>
-                    `).join('') : '<p class="text-center text-gray-500">لا توجد طلبات حالياً</p>'}
+                    `).join('') : '<p class="text-center text-gray-500">لا توجد طلبات</p>'}
                 </div>
                 <div class="flex justify-between items-center p-6 glass rounded-3xl mb-8">
-                    <span class="font-bold text-gray-400">الإجمالي المستحق:</span>
+                    <span class="font-bold text-gray-400">المبلغ المستحق:</span>
                     <span class="text-3xl font-black text-accentCyan font-orbitron">${table.currentTotal || 0} IQD</span>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="closeTable('${id}')" class="p-4 rounded-2xl bg-neonViolet font-bold hover:scale-105 transition-all">إغلاق ودفع ✅</button>
-                    <button onclick="deleteTable('${id}')" class="p-4 rounded-2xl bg-red-500/20 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-all">حذف الطاولة 🗑️</button>
+                    <button onclick="closeTable('${id}')" class="p-4 rounded-2xl bg-neonViolet font-bold">إغلاق ودفع ✅</button>
+                    <button onclick="deleteTable('${id}')" class="p-4 rounded-2xl bg-red-500/20 text-red-500 font-bold">مسح الطاولة 🗑️</button>
                 </div>
             `;
             document.getElementById('modal-overlay').classList.remove('hidden');
         };
 
-        // --- Menu Management ---
+        // --- Menu Logic ---
         async function loadMenu() {
             const catSnap = await getDocs(collection(db, "categories"));
             const prodSnap = await getDocs(collection(db, "products"));
@@ -285,9 +260,9 @@
         window.openAddCategoryModal = () => {
             const body = document.getElementById('modal-body');
             body.innerHTML = `
-                <h2 class="text-3xl font-black mb-8 text-center">إضافة قسم جديد</h2>
+                <h2 class="text-3xl font-black mb-8 text-center">إضافة قسم</h2>
                 <input id="new-cat-name" type="text" placeholder="اسم القسم" class="w-full p-4 rounded-2xl bg-black/40 border border-white/10 mb-6 outline-none focus:border-neonViolet transition-all">
-                <button onclick="saveCategory()" class="w-full p-4 rounded-2xl custom-gradient font-bold text-xl">إنشاء القسم ✅</button>
+                <button onclick="saveCategory()" class="w-full p-4 rounded-2xl custom-gradient font-bold text-xl">حفظ ✅</button>
             `;
             document.getElementById('modal-overlay').classList.remove('hidden');
         };
@@ -305,7 +280,11 @@
             body.innerHTML = `
                 <h2 class="text-3xl font-black mb-8 text-center">إضافة منتج</h2>
                 <input id="prod-name" type="text" placeholder="اسم المنتج" class="w-full p-4 rounded-2xl bg-black/40 border border-white/10 mb-4 outline-none focus:border-neonViolet transition-all">
-                <input id="prod-price" type="number" placeholder="السعر بالدينار" class="w-full p-4 rounded-2xl bg-black/40 border border-white/10 mb-6 outline-none focus:border-neonViolet transition-all">
+                <input id="prod-price" type="number" placeholder="السعر" class="w-full p-4 rounded-2xl bg-black/40 border border-white/10 mb-6 outline-none focus:border-neonViolet transition-all">
+                <div class="flex items-center gap-3 mb-6">
+                    <input type="checkbox" id="prod-timed" class="w-5 h-5">
+                    <label for="prod-timed" class="text-sm">هل هذا المنتج مرتبط بوقت (مثلاً: بلي)؟</label>
+                </div>
                 <button onclick="saveProduct('${catId}')" class="w-full p-4 rounded-2xl custom-gradient font-bold text-xl">إضافة للمنيو ✅</button>
             `;
             document.getElementById('modal-overlay').classList.remove('hidden');
@@ -314,8 +293,9 @@
         window.saveProduct = async (catId) => {
             const name = document.getElementById('prod-name').value;
             const price = parseInt(document.getElementById('prod-price').value);
+            const isTimed = document.getElementById('prod-timed').checked;
             if(!name || !price) return alert("أكمل البيانات!");
-            await addDoc(collection(db, "products"), { name, price, categoryId: catId });
+            await addDoc(collection(db, "products"), { name, price, categoryId: catId, isTimed });
             await loadMenu();
             closeModal();
         };
@@ -337,11 +317,11 @@
         window.openProductPicker = (tableId) => {
             const body = document.getElementById('modal-body');
             body.innerHTML = `
-                <h2 class="text-3xl font-black mb-8 text-center">إضافة صنف للطاولة</h2>
+                <h2 class="text-3xl font-black mb-8 text-center">إضافة صنف</h2>
                 <div class="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto no-scrollbar">
                     ${allProducts.map(p => `
                         <div onclick="addToTable('${tableId}', '${p.id}')" class="flex justify-between items-center p-4 glass rounded-2xl cursor-pointer hover:bg-neonViolet transition-all">
-                            <span class="font-bold">${p.name}</span>
+                            <span class="font-bold">${p.name} ${p.isTimed ? '🕒' : ''}</span>
                             <span class="font-orbitron">${p.price} IQD</span>
                         </div>
                     `).join('')}
@@ -358,18 +338,20 @@
             
             const items = tableData.items || [];
             items.push({ name: prod.name, price: prod.price, qty: 1 });
-            await updateDoc(tableRef, { items, currentTotal: (tableData.currentTotal || 0) + prod.price });
+            
+            const updates = { items, currentTotal: (tableData.currentTotal || 0) + prod.price };
+            if(prod.isTimed) updates.startTime = Date.now();
+            
+            await updateDoc(tableRef, updates);
             manageTable(tableId);
         };
 
         window.closeTable = async (id) => {
             const tableSnap = await getDocs(query(collection(db, "tables"), where("__name__", "==", id)));
             const table = tableSnap.docs[0].data();
-            
             await addDoc(collection(db, "invoices"), {
                 tableName: table.name, total: table.currentTotal, items: table.items, timestamp: serverTimestamp()
             });
-
             await updateDoc(doc(db, "tables", id), { status: 'closed', currentTotal: 0, items: [] });
             closeModal();
         };
@@ -402,7 +384,6 @@
                         <td class="p-6 font-bold">${inv.tableName}</td>
                         <td class="p-6 text-accentCyan font-black">${inv.total} IQD</td>
                         <td class="p-6 text-xs text-gray-400">${inv.timestamp?.toDate().toLocaleString('ar-IQ')}</td>
-                        <td class="p-6"><button class="text-neonViolet hover:underline font-bold">تفاصيل</button></td>
                     </tr>`;
                 });
             });
