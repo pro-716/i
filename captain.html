@@ -3,21 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RESPAWN | واجهة الكابتن</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <title>RESPAWN | نظام الكابتن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { 
-                        darkBg: '#0B0B0F', 
-                        panelBg: 'rgba(25, 25, 35, 0.7)',
-                        primaryPurple: '#6D28D9',
-                        neonViolet: '#A855F7',
-                        accentCyan: '#22D3EE'
-                    },
+                    colors: { darkBg: '#0B0B0F', primaryPurple: '#6D28D9', neonViolet: '#A855F7', accentCyan: '#22D3EE' },
                     fontFamily: { cairo: ['Cairo', 'sans-serif'], orbitron: ['Orbitron', 'sans-serif'] }
                 }
             }
@@ -26,78 +20,71 @@
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #0B0B0F; color: #fff; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .category-btn.active { background: linear-gradient(90deg, #6D28D9, #A855F7); color: white; }
+        .category-btn.active { background: linear-gradient(90deg, #6D28D9, #A855F7); color: white; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .timer-glow { animation: glow 2s infinite; }
-        @keyframes glow { 0%, 100% { color: #fff; } 50% { color: #22D3EE; text-shadow: 0 0 10px #22D3EE; } }
+        .table-card { transition: all 0.3s ease; }
     </style>
 </head>
 <body class="min-h-screen pb-24">
 
-    <!-- Header -->
     <header class="p-6 flex justify-between items-center glass sticky top-0 z-50">
-        <h1 class="text-2xl font-black font-orbitron">RESPAWN<span class="text-neonViolet">.</span></h1>
-        <div id="sync-status" class="text-[10px] font-orbitron bg-accentCyan/20 text-accentCyan px-3 py-1 rounded-full">ONLINE</div>
+        <h1 class="text-2xl font-black font-orbitron">RESPAWN <span class="text-neonViolet">CAPTAIN</span></h1>
+        <div id="sync-status" class="text-[10px] font-orbitron bg-accentCyan/20 text-accentCyan px-3 py-1 rounded-full">متصل بالسحابة</div>
     </header>
 
-    <!-- Main View: Tables Grid -->
-    <div id="view-tables" class="p-6 grid grid-cols-2 gap-4 animate__animated animate__fadeIn">
-        <!-- Tables Dynamic -->
+    <!-- View: Tables Grid -->
+    <div id="view-tables" class="p-6 animate__animated animate__fadeIn">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-black">الطاولات <span class="text-neonViolet">المفتوحة</span></h2>
+            <button onclick="openNewTable()" class="px-6 py-3 rounded-2xl bg-neonViolet font-bold shadow-lg shadow-purple-500/30 text-sm">+ فتح طاولة</button>
+        </div>
+        <div id="tables-grid" class="grid grid-cols-2 gap-4"></div>
     </div>
 
-    <!-- Main View: Order Entry -->
+    <!-- View: Order Entry -->
     <div id="view-order" class="hidden p-6 animate__animated animate__fadeIn">
         <div class="flex items-center gap-4 mb-8">
-            <button onclick="switchView('tables')" class="p-2 glass rounded-xl">
+            <button onclick="switchView('tables')" class="p-3 glass rounded-2xl">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
-            <h2 id="current-table-name" class="text-2xl font-black">طاولة 1</h2>
+            <h2 id="current-table-name" class="text-2xl font-black">اسم الطاولة</h2>
         </div>
 
-        <!-- Categories Nav -->
-        <div id="cat-nav" class="flex gap-3 overflow-x-auto no-scrollbar mb-8 p-2">
-            <!-- Categories Dynamic -->
-        </div>
-
-        <!-- Products Grid -->
-        <div id="products-grid" class="grid grid-cols-1 gap-4 mb-24">
-            <!-- Products Dynamic -->
-        </div>
+        <div id="cat-nav" class="flex gap-3 overflow-x-auto no-scrollbar mb-8 p-2"></div>
+        <div id="products-grid" class="grid grid-cols-1 gap-4 mb-24"></div>
     </div>
 
-    <!-- Bottom Bar: Active Table Summary -->
+    <!-- Floating Footer -->
     <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 p-6 glass border-t border-white/10 hidden z-50">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
-                <p class="text-xs text-gray-400">إجمالي الطلبات</p>
+                <p class="text-xs text-gray-400">إجمالي الحساب</p>
                 <h4 id="footer-total" class="text-2xl font-black font-orbitron text-accentCyan">0 IQD</h4>
             </div>
-            <button onclick="viewTableDetails()" class="px-8 py-3 rounded-2xl custom-gradient font-bold bg-neonViolet">عرض التفاصيل</button>
+            <button onclick="viewTableDetails()" class="px-8 py-3 rounded-2xl bg-neonViolet font-bold shadow-lg shadow-purple-500/30 transition-all active:scale-95">تفاصيل 👁️</button>
         </div>
     </div>
 
-    <!-- Table Details Modal -->
-    <div id="detail-modal" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] hidden p-6">
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-[100] hidden p-6">
         <div class="flex justify-between items-center mb-8">
-            <h2 class="text-3xl font-black">تفاصيل الطلبات</h2>
-            <button onclick="closeDetails()" class="text-2xl">✕</button>
+            <h2 class="text-3xl font-black">ملخص <span class="text-neonViolet">الطلبات</span></h2>
+            <button onclick="closeDetails()" class="text-3xl text-gray-400 hover:text-white">✕</button>
         </div>
-        <div id="detail-list" class="space-y-4 mb-8 max-h-[60vh] overflow-y-auto no-scrollbar">
-            <!-- Items Dynamic -->
+        <div id="detail-list" class="space-y-4 mb-8 max-h-[50vh] overflow-y-auto no-scrollbar"></div>
+        <div id="timer-container" class="glass p-6 rounded-3xl text-center mb-8 hidden">
+            <p class="text-sm text-gray-400 mb-2 font-bold">الوقت المستغرق</p>
+            <h3 id="clock" class="text-5xl font-black font-orbitron text-accentCyan">00:00:00</h3>
         </div>
-        <div id="timer-display" class="glass p-6 rounded-3xl text-center mb-8 hidden">
-            <p class="text-sm text-gray-400 mb-2">الوقت المنقضي</p>
-            <h3 id="clock" class="text-4xl font-black font-orbitron timer-glow">00:00:00</h3>
-        </div>
-        <div class="flex justify-between items-center p-6 glass rounded-3xl">
-            <span class="font-bold">المجموع الكلي:</span>
+        <div class="flex justify-between items-center p-6 glass rounded-3xl border-t-4 border-neonViolet">
+            <span class="font-bold text-xl">المجموع النهائي:</span>
             <span id="detail-total" class="text-3xl font-black text-accentCyan font-orbitron">0 IQD</span>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAFQx3BndP3piYkONM0KSBcb5vo8xx3a5Q",
@@ -121,34 +108,37 @@
             document.getElementById('bottom-bar').classList.toggle('hidden', view === 'tables');
         };
 
-        // Sync Tables
-        onSnapshot(collection(db, "tables"), (snap) => {
-            const grid = document.getElementById('view-tables');
+        onSnapshot(query(collection(db, "tables"), where("status", "==", "open")), (snap) => {
+            const grid = document.getElementById('tables-grid');
             grid.innerHTML = '';
             snap.forEach(docSnap => {
                 const table = docSnap.data();
-                const id = docSnap.id;
                 grid.innerHTML += `
-                    <div onclick="openTable('${id}', '${table.name}')" class="glass p-6 rounded-3xl text-center cursor-pointer table-card ${table.status === 'open' ? 'border-2 border-neonViolet' : ''}">
+                    <div onclick="openTable('${docSnap.id}', '${table.name}')" class="glass p-6 rounded-3xl text-center cursor-pointer table-card border-2 border-neonViolet">
                         <h3 class="text-lg font-bold mb-2">${table.name}</h3>
-                        <span class="text-[10px] px-2 py-1 rounded-lg ${table.status === 'open' ? 'bg-neonViolet' : 'bg-gray-700'}">${table.status === 'open' ? 'نشط' : 'فارغ'}</span>
+                        <span class="text-[10px] px-2 py-1 rounded-lg bg-neonViolet text-white">نشط</span>
                     </div>
                 `;
             });
         });
 
+        window.openNewTable = async () => {
+            const name = prompt("أدخل اسم الطاولة (مثلاً: طاولة 5):");
+            if(!name) return;
+            await addDoc(collection(db, "tables"), { name, status: 'open', currentTotal: 0, items: [], startTime: Date.now() });
+        };
+
         window.openTable = async (id, name) => {
             selectedTableId = id;
             document.getElementById('current-table-name').innerText = name;
             
-            // Load Menu Data
             const catSnap = await getDocs(collection(db, "categories"));
             const prodSnap = await getDocs(collection(db, "products"));
             allCategories = catSnap.docs.map(d => ({id: d.id, ...d.data()}));
             allProducts = prodSnap.docs.map(d => ({id: d.id, ...d.data()}));
 
             renderCategories();
-            renderProducts(allCategories[0].id);
+            if(allCategories.length > 0) renderProducts(allCategories[0].id);
             updateFooterTotal();
             switchView('order');
         };
@@ -176,10 +166,7 @@
             filtered.forEach(p => {
                 grid.innerHTML += `
                     <div onclick="addItem('${p.id}')" class="glass p-5 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-neonViolet/20 transition-all">
-                        <div>
-                            <h4 class="font-bold">${p.name}</h4>
-                            <p class="text-accentCyan font-orbitron text-sm">${p.price} IQD</p>
-                        </div>
+                        <div><h4 class="font-bold">${p.name}</h4><p class="text-accentCyan font-orbitron text-sm">${p.price} IQD</p></div>
                         <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-black">+</div>
                     </div>
                 `;
@@ -189,27 +176,24 @@
         window.addItem = async (prodId) => {
             const prod = allProducts.find(p => p.id === prodId);
             const tableRef = doc(db, "tables", selectedTableId);
-            const snap = await getDocs(query(collection(db, "tables")));
-            const tableData = snap.docs.find(d => d.id === selectedTableId).data();
+            const snap = await getDocs(query(collection(db, "tables"), where("__name__", "==", selectedTableId)));
+            const tableData = snap.docs[0].data();
             
             const items = tableData.items || [];
             items.push({ name: prod.name, price: prod.price, qty: 1 });
-            const newTotal = (tableData.currentTotal || 0) + prod.price;
-            
-            await updateDoc(tableRef, { items, currentTotal: newTotal, status: 'open', startTime: tableData.startTime || Date.now() });
+            await updateDoc(tableRef, { items, currentTotal: (tableData.currentTotal || 0) + prod.price });
             updateFooterTotal();
         };
 
         async function updateFooterTotal() {
-            const snap = await getDocs(query(collection(db, "tables")));
-            const table = snap.docs.find(d => d.id === selectedTableId).data();
+            const snap = await getDocs(query(collection(db, "tables"), where("__name__", "==", selectedTableId)));
+            const table = snap.docs[0].data();
             document.getElementById('footer-total').innerText = `${table.currentTotal || 0} IQD`;
         }
 
         window.viewTableDetails = async () => {
-            const snap = await getDocs(query(collection(db, "tables")));
-            const table = snap.docs.find(d => d.id === selectedTableId).data();
-            
+            const snap = await getDocs(query(collection(db, "tables"), where("__name__", "==", selectedTableId)));
+            const table = snap.docs[0].data();
             const list = document.getElementById('detail-list');
             list.innerHTML = '';
             (table.items || []).forEach((item, idx) => {
@@ -225,14 +209,11 @@
                     </div>
                 `;
             });
-
             document.getElementById('detail-total').innerText = `${table.currentTotal || 0} IQD`;
-            
             if(table.startTime) {
-                document.getElementById('timer-display').classList.remove('hidden');
+                document.getElementById('timer-container').classList.remove('hidden');
                 startTimer(table.startTime);
             }
-
             document.getElementById('detail-modal').classList.remove('hidden');
         };
 
@@ -242,8 +223,7 @@
                 const h = Math.floor(diff / 3600000);
                 const m = Math.floor((diff % 3600000) / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
-                document.getElementById('clock').innerText = 
-                    `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                document.getElementById('clock').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
             }, 1000);
         }
 
@@ -251,23 +231,13 @@
 
         window.updateQty = async (idx, delta) => {
             const tableRef = doc(db, "tables", selectedTableId);
-            const snap = await getDocs(query(collection(db, "tables")));
-            const tableData = snap.docs.find(d => d.id === selectedTableId).data();
+            const snap = await getDocs(query(collection(db, "tables"), where("__name__", "==", selectedTableId)));
+            const tableData = snap.docs[0].data();
             const items = tableData.items;
-            
             const item = items[idx];
             const priceChange = item.price * delta;
-            
-            if(item.qty + delta <= 0) {
-                items.splice(idx, 1);
-            } else {
-                items[idx].qty += delta;
-            }
-            
-            await updateDoc(tableRef, { 
-                items, 
-                currentTotal: tableData.currentTotal + priceChange 
-            });
+            if(item.qty + delta <= 0) { items.splice(idx, 1); } else { items[idx].qty += delta; }
+            await updateDoc(tableRef, { items, currentTotal: tableData.currentTotal + priceChange });
             viewTableDetails();
         };
     </script>
