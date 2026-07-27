@@ -49,12 +49,11 @@
             </button>
             <h2 id="current-table-name" class="text-2xl font-black">اسم الطاولة</h2>
         </div>
-
         <div id="cat-nav" class="flex gap-3 overflow-x-auto no-scrollbar mb-8 p-2"></div>
         <div id="products-grid" class="grid grid-cols-1 gap-4 mb-24"></div>
     </div>
 
-    <!-- Floating Footer -->
+    <!-- Bottom Bar -->
     <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 p-6 glass border-t border-white/10 hidden z-50">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
@@ -72,10 +71,13 @@
             <button onclick="closeDetails()" class="text-3xl text-gray-400 hover:text-white">✕</button>
         </div>
         <div id="detail-list" class="space-y-4 mb-8 max-h-[50vh] overflow-y-auto no-scrollbar"></div>
-        <div id="timer-container" class="glass p-6 rounded-3xl text-center mb-8 hidden">
+        
+        <!-- العداد يظهر فقط إذا كان هناك منتج زمني -->
+        <div id="timer-container" class="glass p-6 rounded-3xl text-center mb-8 hidden animate__animated animate__pulse animate__infinite">
             <p class="text-sm text-gray-400 mb-2 font-bold">الوقت المستغرق</p>
             <h3 id="clock" class="text-5xl font-black font-orbitron text-accentCyan">00:00:00</h3>
         </div>
+
         <div class="flex justify-between items-center p-6 glass rounded-3xl border-t-4 border-neonViolet">
             <span class="font-bold text-xl">المجموع النهائي:</span>
             <span id="detail-total" class="text-3xl font-black text-accentCyan font-orbitron">0 IQD</span>
@@ -94,7 +96,6 @@
             messagingSenderId: "503079760523",
             appId: "1:503079760523:web:002bb6364abd211f5a9a8e"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -123,20 +124,18 @@
         });
 
         window.openNewTable = async () => {
-            const name = prompt("أدخل اسم الطاولة (مثلاً: طاولة 5):");
+            const name = prompt("أدخل اسم الطاولة:");
             if(!name) return;
-            await addDoc(collection(db, "tables"), { name, status: 'open', currentTotal: 0, items: [], startTime: Date.now() });
+            await addDoc(collection(db, "tables"), { name, status: 'open', currentTotal: 0, items: [], startTime: null });
         };
 
         window.openTable = async (id, name) => {
             selectedTableId = id;
             document.getElementById('current-table-name').innerText = name;
-            
             const catSnap = await getDocs(collection(db, "categories"));
             const prodSnap = await getDocs(collection(db, "products"));
             allCategories = catSnap.docs.map(d => ({id: d.id, ...d.data()}));
             allProducts = prodSnap.docs.map(d => ({id: d.id, ...d.data()}));
-
             renderCategories();
             if(allCategories.length > 0) renderProducts(allCategories[0].id);
             updateFooterTotal();
@@ -166,7 +165,7 @@
             filtered.forEach(p => {
                 grid.innerHTML += `
                     <div onclick="addItem('${p.id}')" class="glass p-5 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-neonViolet/20 transition-all">
-                        <div><h4 class="font-bold">${p.name}</h4><p class="text-accentCyan font-orbitron text-sm">${p.price} IQD</p></div>
+                        <div><h4 class="font-bold">${p.name} ${p.isTimed ? '🕒' : ''}</h4><p class="text-accentCyan font-orbitron text-sm">${p.price} IQD</p></div>
                         <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center font-black">+</div>
                     </div>
                 `;
@@ -178,10 +177,13 @@
             const tableRef = doc(db, "tables", selectedTableId);
             const snap = await getDocs(query(collection(db, "tables"), where("__name__", "==", selectedTableId)));
             const tableData = snap.docs[0].data();
-            
             const items = tableData.items || [];
             items.push({ name: prod.name, price: prod.price, qty: 1 });
-            await updateDoc(tableRef, { items, currentTotal: (tableData.currentTotal || 0) + prod.price });
+            
+            const updates = { items, currentTotal: (tableData.currentTotal || 0) + prod.price };
+            if(prod.isTimed) updates.startTime = Date.now(); // تفعيل العداد عند طلب صنف زمني
+            
+            await updateDoc(tableRef, updates);
             updateFooterTotal();
         };
 
@@ -210,9 +212,12 @@
                 `;
             });
             document.getElementById('detail-total').innerText = `${table.currentTotal || 0} IQD`;
+            
             if(table.startTime) {
                 document.getElementById('timer-container').classList.remove('hidden');
                 startTimer(table.startTime);
+            } else {
+                document.getElementById('timer-container').classList.add('hidden');
             }
             document.getElementById('detail-modal').classList.remove('hidden');
         };
