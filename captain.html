@@ -32,7 +32,7 @@
         <div id="sync-status" class="text-[10px] font-orbitron bg-accentCyan/20 text-accentCyan px-3 py-1 rounded-full">متصل بالسحابة</div>
     </header>
 
-    <!-- View: Tables Grid -->
+    <!-- Tables View -->
     <div id="view-tables" class="p-6 animate__animated animate__fadeIn">
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-2xl font-black">الطاولات <span class="text-neonViolet">المفتوحة</span></h2>
@@ -41,7 +41,7 @@
         <div id="tables-grid" class="grid grid-cols-2 gap-4"></div>
     </div>
 
-    <!-- View: Order Entry -->
+    <!-- Order View -->
     <div id="view-order" class="hidden p-6 animate__animated animate__fadeIn">
         <div class="flex items-center gap-4 mb-8">
             <button onclick="switchView('tables')" class="p-3 glass rounded-2xl">
@@ -71,13 +71,10 @@
             <button onclick="closeDetails()" class="text-3xl text-gray-400 hover:text-white">✕</button>
         </div>
         <div id="detail-list" class="space-y-4 mb-8 max-h-[50vh] overflow-y-auto no-scrollbar"></div>
-        
-        <!-- العداد يظهر فقط إذا كان هناك منتج زمني -->
         <div id="timer-container" class="glass p-6 rounded-3xl text-center mb-8 hidden animate__animated animate__pulse animate__infinite">
             <p class="text-sm text-gray-400 mb-2 font-bold">الوقت المستغرق</p>
             <h3 id="clock" class="text-5xl font-black font-orbitron text-accentCyan">00:00:00</h3>
         </div>
-
         <div class="flex justify-between items-center p-6 glass rounded-3xl border-t-4 border-neonViolet">
             <span class="font-bold text-xl">المجموع النهائي:</span>
             <span id="detail-total" class="text-3xl font-black text-accentCyan font-orbitron">0 IQD</span>
@@ -134,6 +131,7 @@
             document.getElementById('current-table-name').innerText = name;
             const catSnap = await getDocs(collection(db, "categories"));
             const prodSnap = await getDocs(collection(db, "products"));
+            allCategories = catSnap.docs.map(d => ({id: d.id, ...d.// data()})); // Fix here
             allCategories = catSnap.docs.map(d => ({id: d.id, ...d.data()}));
             allProducts = prodSnap.docs.map(d => ({id: d.id, ...d.data()}));
             renderCategories();
@@ -179,10 +177,8 @@
             const tableData = snap.docs[0].data();
             const items = tableData.items || [];
             items.push({ name: prod.name, price: prod.price, qty: 1 });
-            
             const updates = { items, currentTotal: (tableData.currentTotal || 0) + prod.price };
-            if(prod.isTimed) updates.startTime = Date.now(); // تفعيل العداد عند طلب صنف زمني
-            
+            if(prod.isTimed) updates.startTime = Date.now();
             await updateDoc(tableRef, updates);
             updateFooterTotal();
         };
@@ -212,7 +208,6 @@
                 `;
             });
             document.getElementById('detail-total').innerText = `${table.currentTotal || 0} IQD`;
-            
             if(table.startTime) {
                 document.getElementById('timer-container').classList.remove('hidden');
                 startTimer(table.startTime);
@@ -241,7 +236,7 @@
             const items = tableData.items;
             const item = items[idx];
             const priceChange = item.price * delta;
-            if(item.qty + delta <= 0) { items.splice(idx, 1); } else { items[idx].qty += delta; }
+            if(item.qty + delta <= 0) { items.splice(idx, 1); } else { items[idx].qty = (items[idx].qty || 1) + delta; }
             await updateDoc(tableRef, { items, currentTotal: tableData.currentTotal + priceChange });
             viewTableDetails();
         };
